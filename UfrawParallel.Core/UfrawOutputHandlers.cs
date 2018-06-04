@@ -23,7 +23,7 @@ namespace UfrawParallel.Core
 		public EventHandler<string> CombinedOutputChangedHandler { get; }
 
 		/// <summary>
-		/// Creates a new instance of <see cref="UfrawOutputHandlers"/>.
+		/// Initializes a new instance of <see cref="UfrawOutputHandlers"/>.
 		/// </summary>
 		/// <param name="outputChangedHandler">Standard output handler to be set.</param>
 		/// <param name="errorChangedHandler">Error output handler.</param>
