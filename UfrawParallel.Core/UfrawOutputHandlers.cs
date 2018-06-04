@@ -8,7 +8,7 @@ namespace UfrawParallel.Core
 	public sealed class UfrawOutputHandlers
 	{
 		/// <summary>
-		/// Regular output handler.
+		/// Standard output handler.
 		/// </summary>
 		public EventHandler<string> OutputChangedHandler { get; }
 
@@ -25,7 +25,7 @@ namespace UfrawParallel.Core
 		/// <summary>
 		/// Creates a new instance of <see cref="UfrawOutputHandlers"/>.
 		/// </summary>
-		/// <param name="outputChangedHandler">Regular output handler to be set.</param>
+		/// <param name="outputChangedHandler">Standard output handler to be set.</param>
 		/// <param name="errorChangedHandler">Error output handler.</param>
 		/// <param name="combinedOutputChangedHandler">Combined output handler.</param>
 		public UfrawOutputHandlers(EventHandler<string> outputChangedHandler, EventHandler<string> errorChangedHandler, EventHandler<string> combinedOutputChangedHandler)
