@@ -1,31 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace UfrawParallel.Core
 {
-    sealed class FilenameDetails
-    {
+	/// <summary>
+	/// This class contains filename details.
+	/// </summary>
+	sealed class FilenameDetails
+	{
+		/// <summary>
+		/// The filename without extension.
+		/// </summary>
 		public string FilenameWithoutExtension { get; }
 
+		/// <summary>
+		/// The file extension.
+		/// </summary>
 		public string Extension { get; }
 
+		/// <summary>
+		/// The filename.
+		/// </summary>
 		public string Filename { get; }
 
-		public override bool Equals(object obj)
-		{
-			if (obj is FilenameDetails objFilenameDetails)
-				return Filename.Equals(objFilenameDetails.Filename, StringComparison.OrdinalIgnoreCase);
-			else
-				return false;
-		}
-
+		/// <summary>
+		/// Gets the object hash code.
+		/// </summary>
+		/// <returns>Object hash code.</returns>
+		/// <remarks>Returns hash code of the <see cref="Filename"/> property.</remarks>
 		public override int GetHashCode()
 		{
 			return Filename.GetHashCode();
 		}
 
+		/// <summary>
+		/// Creates the <see cref="FilenameDetails"/> instance.
+		/// </summary>
+		/// <param name="filename">Filename to be processed.</param>
+		/// <returns><see cref="FilenameDetails"/> instance if creation was succesful; otherwise, null.</returns>
 		public static FilenameDetails Create(string filename)
 		{
 			try
@@ -54,5 +66,5 @@ namespace UfrawParallel.Core
 			this.Extension = extension;
 			this.Filename = filename;
 		}
-    }
+	}
 }

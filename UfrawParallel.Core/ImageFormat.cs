@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace UfrawParallel.Core
+﻿namespace UfrawParallel.Core
 {
+	/// <summary>
+	/// Image formats supported by UFRaw.
+	/// </summary>
 	public enum ImageFormat
 	{
 		None = 0,
