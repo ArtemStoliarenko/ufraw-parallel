@@ -7,14 +7,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using UfrawParallel.Core;
 
 namespace UfrawParallel
 {
-	public partial class UfrawParallel : Form
+	public partial class MainForm : Form
 	{
-		public UfrawParallel()
+		public MainForm()
 		{
 			InitializeComponent();
 		}
+
+		private ImageFormat GetImageFormat => (ImageFormat)Enum.Parse(typeof(ImageFormat), cbFormat.SelectedText);
 	}
 }

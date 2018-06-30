@@ -16,7 +16,7 @@ namespace UfrawParallel
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new UfrawParallel());
+			Application.Run(new MainForm());
 		}
 	}
 }
