@@ -13,13 +13,13 @@ namespace UfrawParallel.Core
 		/// Filters the array of filenames, leaving only non-converted to the chosen format.
 		/// </summary>
 		/// <param name="sourceFilenames">Source array of filenames.</param>
-		/// <param name="convertedExtension"></param>
-		/// <returns></returns>
+		/// <param name="convertedExtension">Extension of the converted file.</param>
+		/// <returns>Array of filenames of the files to  be converted.</returns>
 		public static string[] GetFilenamesToConvert(string[] sourceFilenames, string convertedExtension)
 		{
 			var filenameDetails = sourceFilenames.Select(filename => FilenameDetails.Create(filename))
 				.Where(fd => fd != null);
-			var convertedFilenamesEnuumberable = filenameDetails.Where(fd => !CompareExtensions(fd.Extension, convertedExtension))
+			var convertedFilenamesEnuumberable = filenameDetails.Where(fd => CompareExtensions(fd.Extension, convertedExtension))
 				.Select(fd => fd.FilenameWithoutExtension);
 			var convertedFilenamesSet = new HashSet<string>(convertedFilenamesEnuumberable);
 
