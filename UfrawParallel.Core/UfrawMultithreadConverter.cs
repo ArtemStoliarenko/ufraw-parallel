@@ -35,7 +35,7 @@ namespace UfrawParallel.Core
 		/// </summary>
 		/// <param name="directory">Directory to be processed.</param>
 		/// <param name="imageFormat">Chosen image format.</param>
-		/// <param name="maxThreads">Max amount of running parallel instances.</param>
+		/// <param name="maxThreads">Max amount of running parallel instances, <see cref="Environment.ProcessorCount"/> will be selected if null.</param>
 		/// <param name="handlers">Handlers of the ufraw-batch console output.</param>
 		/// <returns>Output of all ufraw-batch instances.</returns>
 		public static string Convert(string directory, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null) =>
@@ -46,7 +46,7 @@ namespace UfrawParallel.Core
 		/// </summary>
 		/// <param name="filenamesToConvert">Filenames of files to be converted.</param>
 		/// <param name="imageFormat">Chosen image format.</param>
-		/// <param name="maxThreads">Max amount of running parallel instances.</param>
+		/// <param name="maxThreads">Max amount of running parallel instances, <see cref="Environment.ProcessorCount"/> will be selected if null.</param>
 		/// <param name="handlers">Handlers of the ufraw-batch console output.</param>
 		/// <returns>Output of all ufraw-batch instances.</returns>
 		public static string Convert(string[] filenamesToConvert, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null) =>
@@ -57,7 +57,7 @@ namespace UfrawParallel.Core
 		/// </summary>
 		/// <param name="directory">Directory to be processed.</param>
 		/// <param name="imageFormat">Chosen image format.</param>
-		/// <param name="maxThreads">Max amount of running parallel instances.</param>
+		/// <param name="maxThreads">Max amount of running parallel instances, <see cref="Environment.ProcessorCount"/> will be selected if null.</param>
 		/// <param name="handlers">Handlers of the ufraw-batch console output.</param>
 		/// <returns>Output of all ufraw-batch instances.</returns>
 		/// <exception cref="ArgumentException">Wrong image format.</exception>
@@ -76,7 +76,7 @@ namespace UfrawParallel.Core
 		/// </summary>
 		/// <param name="filenamesToConvert">Filenames of files to be converted.</param>
 		/// <param name="imageFormat">Chosen image format.</param>
-		/// <param name="maxThreads">Max amount of running parallel instances.</param>
+		/// <param name="maxThreads">Max amount of running parallel instances, <see cref="Environment.ProcessorCount"/> will be selected if null.</param>
 		/// <param name="handlers">Handlers of the ufraw-batch console output.</param>
 		/// <returns>Output of all ufraw-batch instances.</returns>
 		public static async Task<string> ConvertAsync(string[] filenamesToConvert, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null)
@@ -118,17 +118,18 @@ namespace UfrawParallel.Core
 
 		private static string[] PrepareArguments(string outTypeParameter, string[] filenamesToConvert, int maxThreads)
 		{
+			string initValue = $"{outTypeArgumentHeader} {outTypeParameter}";
+
 			int taskCount = Math.Min(maxThreads, filenamesToConvert.Length);
 			var outputParameters = new StringBuilder[taskCount];
-
 			for (int i = 0; i < taskCount; ++i)
-				outputParameters[i].Append(outTypeParameter);
+				outputParameters[i] = new StringBuilder(initValue);
 
 			for (int i = 0; i < filenamesToConvert.Length; ++i)
 			{
 				int currentIndex = i % taskCount;
-				outputParameters[currentIndex].Append(filenamesToConvert[i]);
 				outputParameters[currentIndex].Append(filenameParameterDelimeter);
+				outputParameters[currentIndex].Append(filenamesToConvert[i]);
 			}
 
 			return outputParameters.Select(sb => sb.ToString())
