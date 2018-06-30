@@ -33,6 +33,17 @@ namespace UfrawParallel.Core
 		/// <summary>
 		/// Converts all non-converted files in directory to the selected format.
 		/// </summary>
+		/// <param name="directory">Directory to be processed.</param>
+		/// <param name="imageFormat">Chosen image format.</param>
+		/// <param name="maxThreads">Max amount of running parallel instances.</param>
+		/// <param name="handlers">Handlers of the ufraw-batch console output.</param>
+		/// <returns>Output of all ufraw-batch instances.</returns>
+		public static string Convert(string directory, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null) =>
+			ConvertAsync(directory, imageFormat, maxThreads, handlers).Result;
+
+		/// <summary>
+		/// Converts all non-converted files in directory to the selected format.
+		/// </summary>
 		/// <param name="filenamesToConvert">Filenames of files to be converted.</param>
 		/// <param name="imageFormat">Chosen image format.</param>
 		/// <param name="maxThreads">Max amount of running parallel instances.</param>
@@ -42,15 +53,23 @@ namespace UfrawParallel.Core
 			Convert(filenamesToConvert, imageFormat, maxThreads, handlers);
 
 		/// <summary>
-		/// Converts all non-converted files in directory to the selected format.
+		/// Converts all non-converted files in directory to the selected format asynchronously.
 		/// </summary>
 		/// <param name="directory">Directory to be processed.</param>
 		/// <param name="imageFormat">Chosen image format.</param>
 		/// <param name="maxThreads">Max amount of running parallel instances.</param>
 		/// <param name="handlers">Handlers of the ufraw-batch console output.</param>
 		/// <returns>Output of all ufraw-batch instances.</returns>
-		public static string Convert(string directory, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null) =>
-			ConvertAsync(directory, imageFormat, maxThreads, handlers).Result;
+		/// <exception cref="ArgumentException">Wrong image format.</exception>
+		/// <exception cref="ArgumentOutOfRangeException">Max threads is negative or zero.</exception>
+		public static Task<string> ConvertAsync(string directory, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null)
+		{
+			if (!Directory.Exists(directory))
+				throw new ArgumentException(nameof(directory));
+
+			var filesToConvert = Directory.GetFiles(directory);
+			return ConvertAsync(filesToConvert, imageFormat, maxThreads, handlers);
+		}
 
 		/// <summary>
 		/// Converts all non-converted files in directory to the selected format asynchronously.
@@ -75,31 +94,18 @@ namespace UfrawParallel.Core
 				throw new ArgumentNullException(nameof(filenamesToConvert));
 
 			string[] outputArguments = GetOutputArguments(filenamesToConvert, imageFormat, maxThreads);
+			var runResults = await Convert(outputArguments, handlers);
+			return runResults.CombinedOutput;
+		}
+
+		private static async Task<RunResults> Convert(string[] outputArguments, UfrawOutputHandlers handlers)
+		{
 			using (var ufrawRunner = new ProcessRunner(ufrawBatchExeLocation.Value, outputArguments))
 			{
 				SetHandlersIfNecessary(ufrawRunner, handlers);
 				var runResults = await ufrawRunner.StartAsync();
-				return runResults.CombinedOutput;
+				return runResults;
 			}
-		}
-
-		/// <summary>
-		/// Converts all non-converted files in directory to the selected format asynchronously.
-		/// </summary>
-		/// <param name="directory">Directory to be processed.</param>
-		/// <param name="imageFormat">Chosen image format.</param>
-		/// <param name="maxThreads">Max amount of running parallel instances.</param>
-		/// <param name="handlers">Handlers of the ufraw-batch console output.</param>
-		/// <returns>Output of all ufraw-batch instances.</returns>
-		/// <exception cref="ArgumentException">Wrong image format.</exception>
-		/// <exception cref="ArgumentOutOfRangeException">Max threads is negative or zero.</exception>
-		public static Task<string> ConvertAsync(string directory, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null)
-		{
-			if (!Directory.Exists(directory))
-				throw new ArgumentException(nameof(directory));
-
-			var filesToConvert = Directory.GetFiles(directory);
-			return ConvertAsync(filesToConvert, imageFormat, maxThreads, handlers);
 		}
 
 		private static string[] GetOutputArguments(string[] filenames, ImageFormat imageFormat, int? maxThreads)
