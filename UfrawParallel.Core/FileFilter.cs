@@ -10,6 +10,8 @@ namespace UfrawParallel.Core
 	/// </summary>
 	static class FileFilter
 	{
+		private const char extensionSeparator = '.';
+
 		/// <summary>
 		/// Filters all specified filenames, leaving only unconverted.
 		/// </summary>
@@ -27,10 +29,11 @@ namespace UfrawParallel.Core
 		/// <returns>Array of filenames of the files to  be converted.</returns>
 		public static string[] GetFilenamesToConvert(string directory, string convertedExtension)
 		{
+			string extensionToCompare = extensionSeparator + convertedExtension;
 			var sourceFilenames = Directory.GetFiles(directory);
 			var filenameDetails = sourceFilenames.Select(filename => FilenameDetails.Create(filename))
 				.Where(fd => fd != null);
-			var convertedFilenamesEnuumberable = filenameDetails.Where(fd => CompareExtensions(fd.Extension, convertedExtension))
+			var convertedFilenamesEnuumberable = filenameDetails.Where(fd => CompareExtensions(fd.Extension, extensionToCompare))
 				.Select(fd => fd.FilenameWithoutExtension);
 			var convertedFilenamesSet = new HashSet<string>(convertedFilenamesEnuumberable);
 

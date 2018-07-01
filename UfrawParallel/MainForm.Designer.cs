@@ -38,10 +38,14 @@
 			this.btnOutput = new System.Windows.Forms.Button();
 			this.tbOutput = new System.Windows.Forms.TextBox();
 			this.lbOutput = new System.Windows.Forms.Label();
+			this.lbThreads = new System.Windows.Forms.Label();
+			this.nudThreads = new System.Windows.Forms.NumericUpDown();
+			this.btnCancel = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.spMainForm)).BeginInit();
 			this.spMainForm.Panel1.SuspendLayout();
 			this.spMainForm.Panel2.SuspendLayout();
 			this.spMainForm.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.nudThreads)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// lbFormat
@@ -100,6 +104,9 @@
 			// 
 			// spMainForm.Panel1
 			// 
+			this.spMainForm.Panel1.Controls.Add(this.btnCancel);
+			this.spMainForm.Panel1.Controls.Add(this.nudThreads);
+			this.spMainForm.Panel1.Controls.Add(this.lbThreads);
 			this.spMainForm.Panel1.Controls.Add(this.btnOutput);
 			this.spMainForm.Panel1.Controls.Add(this.lbFormat);
 			this.spMainForm.Panel1.Controls.Add(this.btnConvertFolder);
@@ -117,7 +124,7 @@
 			// 
 			// btnOutput
 			// 
-			this.btnOutput.Location = new System.Drawing.Point(178, 44);
+			this.btnOutput.Location = new System.Drawing.Point(178, 41);
 			this.btnOutput.Name = "btnOutput";
 			this.btnOutput.Size = new System.Drawing.Size(170, 23);
 			this.btnOutput.TabIndex = 4;
@@ -144,6 +151,48 @@
 			this.lbOutput.TabIndex = 0;
 			this.lbOutput.Text = "Output:";
 			// 
+			// lbThreads
+			// 
+			this.lbThreads.AutoSize = true;
+			this.lbThreads.Location = new System.Drawing.Point(3, 44);
+			this.lbThreads.Name = "lbThreads";
+			this.lbThreads.Size = new System.Drawing.Size(49, 13);
+			this.lbThreads.TabIndex = 5;
+			this.lbThreads.Text = "Threads:";
+			// 
+			// nudThreads
+			// 
+			this.nudThreads.Location = new System.Drawing.Point(51, 44);
+			this.nudThreads.Maximum = new decimal(new int[] {
+            128,
+            0,
+            0,
+            0});
+			this.nudThreads.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.nudThreads.Name = "nudThreads";
+			this.nudThreads.Size = new System.Drawing.Size(120, 20);
+			this.nudThreads.TabIndex = 6;
+			this.nudThreads.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			// 
+			// btnCancel
+			// 
+			this.btnCancel.Enabled = false;
+			this.btnCancel.Location = new System.Drawing.Point(355, 41);
+			this.btnCancel.Name = "btnCancel";
+			this.btnCancel.Size = new System.Drawing.Size(169, 23);
+			this.btnCancel.TabIndex = 7;
+			this.btnCancel.Text = "Cancel conversion";
+			this.btnCancel.UseVisualStyleBackColor = true;
+			this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -153,12 +202,14 @@
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
 			this.Name = "MainForm";
 			this.Text = "UfrawParallel";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 			this.spMainForm.Panel1.ResumeLayout(false);
 			this.spMainForm.Panel1.PerformLayout();
 			this.spMainForm.Panel2.ResumeLayout(false);
 			this.spMainForm.Panel2.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.spMainForm)).EndInit();
 			this.spMainForm.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.nudThreads)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -175,6 +226,9 @@
 		private System.Windows.Forms.Label lbOutput;
 		private System.Windows.Forms.Button btnOutput;
 		private System.Windows.Forms.TextBox tbOutput;
+		private System.Windows.Forms.NumericUpDown nudThreads;
+		private System.Windows.Forms.Label lbThreads;
+		private System.Windows.Forms.Button btnCancel;
 	}
 }
 

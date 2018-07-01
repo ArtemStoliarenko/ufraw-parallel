@@ -12,13 +12,13 @@ namespace UfrawParallel.Core
 	/// <summary>
 	/// Interacts with ufraw-batch to process multiple files simultaneously. 
 	/// </summary>
-	public static class UfrawMultithreadConverter
+	public sealed class UfrawMultithreadConverter
 	{
 		private const string ufrawBatchLocationCofnigKey = "UfrawBatchLocation";
 
-		private static readonly Lazy<string> ufrawBatchExeLocation = new Lazy<string>(() => ConfigurationManager.AppSettings[ufrawBatchLocationCofnigKey]);
-
 		private const string outTypeArgumentHeader = "--out-type ";
+
+		private static readonly Lazy<string> ufrawBatchExeLocation = new Lazy<string>(() => ConfigurationManager.AppSettings[ufrawBatchLocationCofnigKey]);
 
 		private static readonly Dictionary<ImageFormat, string> imageFormatExtensions = new Dictionary<ImageFormat, string>()
 		{
@@ -30,6 +30,13 @@ namespace UfrawParallel.Core
 
 		private const char filenameParameterDelimeter = ' ';
 
+		private ProcessRunner ufrawProcessRunner = null;
+
+		/// <summary>
+		/// True, if conversion is in progress; otherwise, false.
+		/// </summary>
+		public bool IsRunning => ufrawProcessRunner != null && !ufrawProcessRunner.CurrentTask.IsCompleted;
+
 		/// <summary>
 		/// Converts all non-converted files in directory to the selected format.
 		/// </summary>
@@ -38,7 +45,7 @@ namespace UfrawParallel.Core
 		/// <param name="maxThreads">Max amount of running parallel instances, <see cref="Environment.ProcessorCount"/> will be selected if null.</param>
 		/// <param name="handlers">Handlers of the ufraw-batch console output.</param>
 		/// <returns>Output of all ufraw-batch instances.</returns>
-		public static string Convert(string directory, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null) =>
+		public string Convert(string directory, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null) =>
 			ConvertAsync(directory, imageFormat, maxThreads, handlers).Result;
 
 		/// <summary>
@@ -49,7 +56,7 @@ namespace UfrawParallel.Core
 		/// <param name="maxThreads">Max amount of running parallel instances, <see cref="Environment.ProcessorCount"/> will be selected if null.</param>
 		/// <param name="handlers">Handlers of the ufraw-batch console output.</param>
 		/// <returns>Output of all ufraw-batch instances.</returns>
-		public static string Convert(string[] filenamesToConvert, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null) =>
+		public string Convert(string[] filenamesToConvert, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null) =>
 			Convert(filenamesToConvert, imageFormat, maxThreads, handlers);
 
 		/// <summary>
@@ -62,7 +69,7 @@ namespace UfrawParallel.Core
 		/// <returns>Output of all ufraw-batch instances.</returns>
 		/// <exception cref="ArgumentException">Wrong image format.</exception>
 		/// <exception cref="ArgumentOutOfRangeException">Max threads is negative or zero.</exception>
-		public static async Task<string> ConvertAsync(string directory, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null)
+		public async Task<string> ConvertAsync(string directory, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null)
 		{
 			CheckCommonPrerequisites(imageFormat, ref maxThreads);
 
@@ -84,7 +91,7 @@ namespace UfrawParallel.Core
 		/// <param name="maxThreads">Max amount of running parallel instances, <see cref="Environment.ProcessorCount"/> will be selected if null.</param>
 		/// <param name="handlers">Handlers of the ufraw-batch console output.</param>
 		/// <returns>Output of all ufraw-batch instances.</returns>
-		public static async Task<string> ConvertAsync(string[] filenamesToConvert, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null)
+		public async Task<string> ConvertAsync(string[] filenamesToConvert, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null)
 		{
 			CheckCommonPrerequisites(imageFormat, ref maxThreads);
 
@@ -98,7 +105,13 @@ namespace UfrawParallel.Core
 			return runResults.CombinedOutput;
 		}
 
-		private static void CheckCommonPrerequisites(ImageFormat imageFormat, ref int? maxThreads)
+		/// <summary>
+		/// Tries to cancel conversion of the images and stop all converting UFRaw processes.
+		/// </summary>
+		/// <returns>True, if cancellation was succesfull; otherwisae, false.</returns>
+		public bool CancelConversion() => IsRunning ? ufrawProcessRunner.Stop() : false;
+
+		private void CheckCommonPrerequisites(ImageFormat imageFormat, ref int? maxThreads)
 		{
 			if (imageFormat == ImageFormat.None)
 				throw new ArgumentException(nameof(imageFormat));
@@ -106,14 +119,29 @@ namespace UfrawParallel.Core
 			if (maxThreads <= 0)
 				throw new ArgumentOutOfRangeException(nameof(maxThreads));
 
+			if (IsRunning)
+				throw new InvalidOperationException(nameof(UfrawMultithreadConverter));
+
 			if (!maxThreads.HasValue)
 				maxThreads = Environment.ProcessorCount;
 		}
 
-		private static Task<RunResults> ConvertInner(string[] filteredFilenames, string outTypeParameter, int maxThreads, UfrawOutputHandlers handlers)
+		private Task<RunResults> ConvertInner(string[] filteredFilenames, string outTypeParameter, int maxThreads, UfrawOutputHandlers handlers)
 		{
 			string[] arguments = PrepareArguments(filteredFilenames, outTypeParameter, maxThreads);
 			return StartConversion(arguments, handlers);
+		}
+
+		private async Task<RunResults> StartConversion(string[] outputArguments, UfrawOutputHandlers handlers)
+		{
+			var messageFormatter = GetMessageFormatter(handlers);
+			using (var ufrawRunner = new ProcessRunner(ufrawBatchExeLocation.Value, outputArguments, false, messageFormatter))
+			{
+				SetHandlersIfNecessary(ufrawRunner, handlers);
+				ufrawProcessRunner = ufrawRunner;
+				var runResults = await ufrawRunner.StartAsync();
+				return runResults;
+			}
 		}
 
 		private static string[] PrepareArguments(string[] filenamesToConvert, string outTypeParameter, int maxThreads)
@@ -136,19 +164,8 @@ namespace UfrawParallel.Core
 				.ToArray();
 		}
 
-		private static async Task<RunResults> StartConversion(string[] outputArguments, UfrawOutputHandlers handlers)
-		{
-			var messageFormatter = GetMessageFormatter(handlers);
-			using (var ufrawRunner = new ProcessRunner(ufrawBatchExeLocation.Value, outputArguments, false, messageFormatter))
-			{
-				SetHandlersIfNecessary(ufrawRunner, handlers);
-				var runResults = await ufrawRunner.StartAsync();
-				return runResults;
-			}
-		}
-
 		private static IMessageFormatter GetMessageFormatter(UfrawOutputHandlers handlers) =>
-			handlers != null && handlers.AnyHandlerSet ? MessageFormatter.AppendLine : MessageFormatter.NoMessages;
+			handlers != null && handlers.AnyHandlerSet ? MessageFormatter.LastLine : MessageFormatter.NoMessages;
 
 		private static void SetHandlersIfNecessary(ProcessRunner ufrawRunner, UfrawOutputHandlers handlers)
 		{

@@ -17,18 +17,26 @@ namespace UfrawParallel
 
 		private const string collapseButtonTest = "Collapse output";
 
-		private const string successMessage = "Conversion successful!";
-
 		private const string errorMessage = "Error happened: ";
 
 		private const int collapsedHeight = 130;
 
 		private const int uncollapsedHeight = 290;
 
+		private const int virtualProcessorsPerReal = 2;
+
+		private const int minimumAmountOfProcess = 1;
+
+		private readonly UfrawMultithreadConverter multithreadConverter = new UfrawMultithreadConverter();
+
 		public MainForm()
 		{
 			InitializeComponent();
+
 			cbFormat.SelectedIndex = 0;
+
+			nudThreads.Value = Math.Max(minimumAmountOfProcess, Environment.ProcessorCount / virtualProcessorsPerReal);
+			nudThreads.Maximum = Environment.ProcessorCount;
 		}
 
 		private async void btnConvertFiles_Click(object sender, EventArgs e)
@@ -42,9 +50,8 @@ namespace UfrawParallel
 					var filenames = ofd.FileNames;
 					var handlers = new UfrawOutputHandlers(null, null, CombinedOutputChangedHandler);
 
-					ChangeButtonsState(false);
-					tbOutput.Text = await UfrawMultithreadConverter.ConvertAsync(filenames, imageFormat, null, handlers);
-					MessageBox.Show(successMessage);
+					ChangeButtonsState(true);
+					tbOutput.Text = await multithreadConverter.ConvertAsync(filenames, imageFormat, Convert.ToInt32(nudThreads.Value), handlers);
 				}
 			}
 			catch (Exception ex)
@@ -53,7 +60,7 @@ namespace UfrawParallel
 			}
 			finally
 			{
-				ChangeButtonsState(true);
+				ChangeButtonsState(false);
 			}
 		}
 
@@ -68,9 +75,8 @@ namespace UfrawParallel
 					var folder = fbd.SelectedPath;
 					var handlers = new UfrawOutputHandlers(null, null, CombinedOutputChangedHandler);
 
-					ChangeButtonsState(false);
-					tbOutput.Text = await UfrawMultithreadConverter.ConvertAsync(folder, imageFormat, null, handlers);
-					MessageBox.Show(successMessage);
+					ChangeButtonsState(true);
+					tbOutput.Text = await multithreadConverter.ConvertAsync(folder, imageFormat, Convert.ToInt32(nudThreads.Value), handlers);
 				}
 			}
 			catch (Exception ex)
@@ -79,7 +85,7 @@ namespace UfrawParallel
 			}
 			finally
 			{
-				ChangeButtonsState(true);
+				ChangeButtonsState(false);
 			}
 		}
 
@@ -110,17 +116,34 @@ namespace UfrawParallel
 			}
 		}
 
+		private void btnCancel_Click(object sender, EventArgs e)
+		{
+			multithreadConverter.CancelConversion();
+		}
+
+		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			multithreadConverter.CancelConversion();
+		}
+
 		private ImageFormat GetImageFormat() => (ImageFormat)Enum.Parse(typeof(ImageFormat), (string)cbFormat.SelectedItem);
 
-		private void ChangeButtonsState(bool state)
+		private void ChangeButtonsState(bool conversionRunning)
 		{
-			btnConvertFiles.Enabled = state;
-			btnConvertFolder.Enabled = state;
+			btnConvertFiles.Enabled = !conversionRunning;
+			btnConvertFolder.Enabled = !conversionRunning;
+
+			btnCancel.Enabled = conversionRunning;
 		}
 
 		private void CombinedOutputChangedHandler(object sender, string newOutput)
 		{
-			tbOutput.Invoke((MethodInvoker)(() => tbOutput.Text = newOutput));
+			tbOutput.Invoke((MethodInvoker)(() =>
+			{
+				tbOutput.AppendText(newOutput);
+				if (!newOutput.EndsWith(Environment.NewLine))
+					tbOutput.AppendText(Environment.NewLine);
+			}));
 		}
 
 	}
