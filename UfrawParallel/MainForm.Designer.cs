@@ -202,7 +202,7 @@
 			this.Controls.Add(this.spMainForm);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
 			this.Name = "MainForm";
-			this.Text = "UfrawParallel";
+			this.Text = "UfrawParallel v1.0.3";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 			this.spMainForm.Panel1.ResumeLayout(false);
 			this.spMainForm.Panel1.PerformLayout();
