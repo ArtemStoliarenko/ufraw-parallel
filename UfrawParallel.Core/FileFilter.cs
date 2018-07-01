@@ -41,7 +41,7 @@ namespace UfrawParallel.Core
 
 		private static bool ConvertedFileExistsInTheSameFolder(string sourceFilename, string convertedExtension)
 		{
-			string convertedFilename = Path.Combine(Path.GetFileNameWithoutExtension(sourceFilename), convertedExtension);
+			string convertedFilename = Path.ChangeExtension(sourceFilename, convertedExtension);
 			return File.Exists(convertedFilename);
 		}
 
