@@ -23,6 +23,11 @@ namespace UfrawParallel.Core
 		public EventHandler<string> CombinedOutputChangedHandler { get; }
 
 		/// <summary>
+		/// True if at least one handler is not null; otherwise, false.
+		/// </summary>
+		public bool AnyHandlerSet { get; }
+
+		/// <summary>
 		/// Initializes a new instance of <see cref="UfrawOutputHandlers"/>.
 		/// </summary>
 		/// <param name="outputChangedHandler">Standard output handler to be set.</param>
@@ -33,17 +38,8 @@ namespace UfrawParallel.Core
 			this.OutputChangedHandler = outputChangedHandler;
 			this.ErrorChangedHandler = errorChangedHandler;
 			this.CombinedOutputChangedHandler = combinedOutputChangedHandler;
-		}
 
-		/// <summary>
-		/// Checks if at least one handler is set in the <see cref="UfrawOutputHandlers"/> instance.
-		/// </summary>
-		/// <returns>True, if at least one handler is not null; otherwise, false.</returns>
-		public bool AnyHandlerSet()
-		{
-			return (OutputChangedHandler != null) ||
-				(ErrorChangedHandler != null) ||
-				(CombinedOutputChangedHandler != null);
+			this.AnyHandlerSet = (OutputChangedHandler != null) || (ErrorChangedHandler != null) || (CombinedOutputChangedHandler != null);
 		}
 	}
 }

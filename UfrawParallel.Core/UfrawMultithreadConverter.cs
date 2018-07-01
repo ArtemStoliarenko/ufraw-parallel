@@ -148,11 +148,11 @@ namespace UfrawParallel.Core
 		}
 
 		private static IMessageFormatter GetMessageFormatter(UfrawOutputHandlers handlers) =>
-			handlers != null && handlers.AnyHandlerSet() ? MessageFormatter.AppendLine : MessageFormatter.NoMessages;
+			handlers != null && handlers.AnyHandlerSet ? MessageFormatter.AppendLine : MessageFormatter.NoMessages;
 
 		private static void SetHandlersIfNecessary(ProcessRunner ufrawRunner, UfrawOutputHandlers handlers)
 		{
-			if (handlers != null && handlers.AnyHandlerSet())
+			if (handlers != null && handlers.AnyHandlerSet)
 			{
 				ufrawRunner.OutputChanged += handlers.OutputChangedHandler;
 				ufrawRunner.ErrorChanged += handlers.ErrorChangedHandler;

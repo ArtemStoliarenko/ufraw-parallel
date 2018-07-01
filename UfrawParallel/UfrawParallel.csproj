@@ -103,7 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UfrawParallel.Core\UfrawParallel.Core.csproj">
-      <Project>{454546ca-e05c-48fa-b437-2428736eb9f6}</Project>
+      <Project>{40569009-8bba-42d5-b879-372986f0bacc}</Project>
       <Name>UfrawParallel.Core</Name>
     </ProjectReference>
   </ItemGroup>
