@@ -44,7 +44,7 @@ namespace UfrawParallel
 					var handlers = new UfrawOutputHandlers(null, null, CombinedOutputChangedHandler);
 
 					ChangeButtonsState(true);
-					tbOutput.Text = await multithreadConverter.ConvertAsync(filenames, imageFormat, Convert.ToInt32(nudThreads.Value), handlers);
+					await multithreadConverter.ConvertAsync(filenames, imageFormat, Convert.ToInt32(nudThreads.Value), handlers);
 				}
 			}
 			catch (Exception ex)
@@ -69,7 +69,7 @@ namespace UfrawParallel
 					var handlers = new UfrawOutputHandlers(null, null, CombinedOutputChangedHandler);
 
 					ChangeButtonsState(true);
-					tbOutput.Text = await multithreadConverter.ConvertAsync(folder, imageFormat, Convert.ToInt32(nudThreads.Value), handlers);
+					await multithreadConverter.ConvertAsync(folder, imageFormat, Convert.ToInt32(nudThreads.Value), handlers);
 				}
 			}
 			catch (Exception ex)
