@@ -123,6 +123,9 @@ namespace UfrawParallel
 
 		private void ChangeButtonsState(bool conversionRunning)
 		{
+			cbFormat.Enabled = !conversionRunning;
+			nudThreads.Enabled = !conversionRunning;
+
 			btnConvertFiles.Enabled = !conversionRunning;
 			btnConvertFolder.Enabled = !conversionRunning;
 

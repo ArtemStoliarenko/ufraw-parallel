@@ -35,7 +35,7 @@ namespace UfrawParallel.Core
 		/// <summary>
 		/// True, if conversion is in progress; otherwise, false.
 		/// </summary>
-		public bool IsRunning => ufrawProcessRunner != null && !ufrawProcessRunner.CurrentTask.IsCompleted;
+		public bool IsRunning => (ufrawProcessRunner?.CurrentTask != null) && (!ufrawProcessRunner.CurrentTask.IsCompleted);
 
 		/// <summary>
 		/// Converts all non-converted files in directory to the selected format.
