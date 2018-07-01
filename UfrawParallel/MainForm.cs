@@ -17,6 +17,8 @@ namespace UfrawParallel
 
 		private const string collapseButtonTest = "Collapse output";
 
+		private const string successMessage = "Conversion successful!";
+
 		private const string errorMessage = "Error happened: ";
 
 		private const int collapsedHeight = 130;
@@ -41,6 +43,7 @@ namespace UfrawParallel
 
 					ChangeButtonsState(false);
 					tbOutput.Text = await UfrawMultithreadConverter.ConvertAsync(filenames, imageFormat, null, handlers);
+					MessageBox.Show(successMessage);
 				}
 			}
 			catch (Exception ex)
@@ -66,6 +69,7 @@ namespace UfrawParallel
 
 					ChangeButtonsState(false);
 					tbOutput.Text = await UfrawMultithreadConverter.ConvertAsync(folder, imageFormat, null, handlers);
+					MessageBox.Show(successMessage);
 				}
 			}
 			catch (Exception ex)
@@ -111,8 +115,6 @@ namespace UfrawParallel
 		{
 			btnConvertFiles.Enabled = state;
 			btnConvertFolder.Enabled = state;
-
-			btnOutput.Enabled = true;
 		}
 
 		private void CombinedOutputChangedHandler(object sender, string newOutput)

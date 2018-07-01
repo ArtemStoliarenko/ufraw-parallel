@@ -110,13 +110,13 @@
 			// 
 			this.spMainForm.Panel2.Controls.Add(this.tbOutput);
 			this.spMainForm.Panel2.Controls.Add(this.lbOutput);
+			this.spMainForm.Panel2Collapsed = true;
 			this.spMainForm.Size = new System.Drawing.Size(544, 248);
 			this.spMainForm.SplitterDistance = 69;
 			this.spMainForm.TabIndex = 4;
 			// 
 			// btnOutput
 			// 
-			this.btnOutput.Enabled = false;
 			this.btnOutput.Location = new System.Drawing.Point(178, 44);
 			this.btnOutput.Name = "btnOutput";
 			this.btnOutput.Size = new System.Drawing.Size(170, 23);
@@ -150,6 +150,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(562, 91);
 			this.Controls.Add(this.spMainForm);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
 			this.Name = "MainForm";
 			this.Text = "UfrawParallel";
 			this.spMainForm.Panel1.ResumeLayout(false);
