@@ -35,12 +35,12 @@
 			this.ofd = new System.Windows.Forms.OpenFileDialog();
 			this.fbd = new System.Windows.Forms.FolderBrowserDialog();
 			this.spMainForm = new System.Windows.Forms.SplitContainer();
+			this.btnCancel = new System.Windows.Forms.Button();
+			this.nudThreads = new System.Windows.Forms.NumericUpDown();
+			this.lbThreads = new System.Windows.Forms.Label();
 			this.btnOutput = new System.Windows.Forms.Button();
 			this.tbOutput = new System.Windows.Forms.TextBox();
 			this.lbOutput = new System.Windows.Forms.Label();
-			this.lbThreads = new System.Windows.Forms.Label();
-			this.nudThreads = new System.Windows.Forms.NumericUpDown();
-			this.btnCancel = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.spMainForm)).BeginInit();
 			this.spMainForm.Panel1.SuspendLayout();
 			this.spMainForm.Panel2.SuspendLayout();
@@ -95,6 +95,7 @@
 			// ofd
 			// 
 			this.ofd.FileName = "ofd";
+			this.ofd.Multiselect = true;
 			// 
 			// spMainForm
 			// 
@@ -121,6 +122,48 @@
 			this.spMainForm.Size = new System.Drawing.Size(544, 248);
 			this.spMainForm.SplitterDistance = 69;
 			this.spMainForm.TabIndex = 4;
+			// 
+			// btnCancel
+			// 
+			this.btnCancel.Enabled = false;
+			this.btnCancel.Location = new System.Drawing.Point(355, 41);
+			this.btnCancel.Name = "btnCancel";
+			this.btnCancel.Size = new System.Drawing.Size(169, 23);
+			this.btnCancel.TabIndex = 7;
+			this.btnCancel.Text = "Cancel conversion";
+			this.btnCancel.UseVisualStyleBackColor = true;
+			this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+			// 
+			// nudThreads
+			// 
+			this.nudThreads.Location = new System.Drawing.Point(51, 44);
+			this.nudThreads.Maximum = new decimal(new int[] {
+            128,
+            0,
+            0,
+            0});
+			this.nudThreads.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.nudThreads.Name = "nudThreads";
+			this.nudThreads.Size = new System.Drawing.Size(120, 20);
+			this.nudThreads.TabIndex = 6;
+			this.nudThreads.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			// 
+			// lbThreads
+			// 
+			this.lbThreads.AutoSize = true;
+			this.lbThreads.Location = new System.Drawing.Point(3, 44);
+			this.lbThreads.Name = "lbThreads";
+			this.lbThreads.Size = new System.Drawing.Size(49, 13);
+			this.lbThreads.TabIndex = 5;
+			this.lbThreads.Text = "Threads:";
 			// 
 			// btnOutput
 			// 
@@ -150,48 +193,6 @@
 			this.lbOutput.Size = new System.Drawing.Size(42, 13);
 			this.lbOutput.TabIndex = 0;
 			this.lbOutput.Text = "Output:";
-			// 
-			// lbThreads
-			// 
-			this.lbThreads.AutoSize = true;
-			this.lbThreads.Location = new System.Drawing.Point(3, 44);
-			this.lbThreads.Name = "lbThreads";
-			this.lbThreads.Size = new System.Drawing.Size(49, 13);
-			this.lbThreads.TabIndex = 5;
-			this.lbThreads.Text = "Threads:";
-			// 
-			// nudThreads
-			// 
-			this.nudThreads.Location = new System.Drawing.Point(51, 44);
-			this.nudThreads.Maximum = new decimal(new int[] {
-            128,
-            0,
-            0,
-            0});
-			this.nudThreads.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-			this.nudThreads.Name = "nudThreads";
-			this.nudThreads.Size = new System.Drawing.Size(120, 20);
-			this.nudThreads.TabIndex = 6;
-			this.nudThreads.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-			// 
-			// btnCancel
-			// 
-			this.btnCancel.Enabled = false;
-			this.btnCancel.Location = new System.Drawing.Point(355, 41);
-			this.btnCancel.Name = "btnCancel";
-			this.btnCancel.Size = new System.Drawing.Size(169, 23);
-			this.btnCancel.TabIndex = 7;
-			this.btnCancel.Text = "Cancel conversion";
-			this.btnCancel.UseVisualStyleBackColor = true;
-			this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
 			// 
 			// MainForm
 			// 
