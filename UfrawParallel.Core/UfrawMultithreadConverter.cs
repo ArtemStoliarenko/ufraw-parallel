@@ -62,13 +62,18 @@ namespace UfrawParallel.Core
 		/// <returns>Output of all ufraw-batch instances.</returns>
 		/// <exception cref="ArgumentException">Wrong image format.</exception>
 		/// <exception cref="ArgumentOutOfRangeException">Max threads is negative or zero.</exception>
-		public static Task<string> ConvertAsync(string directory, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null)
+		public static async Task<string> ConvertAsync(string directory, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null)
 		{
+			CheckCommonPrerequisites(imageFormat, ref maxThreads);
+
 			if (!Directory.Exists(directory))
 				throw new ArgumentException(nameof(directory));
 
-			var filesToConvert = Directory.GetFiles(directory);
-			return ConvertAsync(filesToConvert, imageFormat, maxThreads, handlers);
+			string outTypeParameter = imageFormatExtensions[imageFormat];
+			string[] filteredFilenames = FileFilter.GetFilenamesToConvert(directory, outTypeParameter);
+
+			var runResults = await ConvertInner(filteredFilenames, outTypeParameter, maxThreads.Value, handlers);
+			return runResults.CombinedOutput;
 		}
 
 		/// <summary>
@@ -81,6 +86,20 @@ namespace UfrawParallel.Core
 		/// <returns>Output of all ufraw-batch instances.</returns>
 		public static async Task<string> ConvertAsync(string[] filenamesToConvert, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null)
 		{
+			CheckCommonPrerequisites(imageFormat, ref maxThreads);
+
+			if (filenamesToConvert == null)
+				throw new ArgumentNullException(nameof(filenamesToConvert));
+
+			string outTypeParameter = imageFormatExtensions[imageFormat];
+			string[] filteredFilenames = FileFilter.GetFilenamesToConvert(filenamesToConvert, outTypeParameter);
+
+			var runResults = await ConvertInner(filteredFilenames, outTypeParameter, maxThreads.Value, handlers);
+			return runResults.CombinedOutput;
+		}
+
+		private static void CheckCommonPrerequisites(ImageFormat imageFormat, ref int? maxThreads)
+		{
 			if (imageFormat == ImageFormat.None)
 				throw new ArgumentException(nameof(imageFormat));
 
@@ -89,34 +108,15 @@ namespace UfrawParallel.Core
 
 			if (!maxThreads.HasValue)
 				maxThreads = Environment.ProcessorCount;
-
-			if (filenamesToConvert == null)
-				throw new ArgumentNullException(nameof(filenamesToConvert));
-
-			string[] outputArguments = GetOutputArguments(filenamesToConvert, imageFormat, maxThreads);
-			var runResults = await Convert(outputArguments, handlers);
-			return runResults.CombinedOutput;
 		}
 
-		private static async Task<RunResults> Convert(string[] outputArguments, UfrawOutputHandlers handlers)
+		private static Task<RunResults> ConvertInner(string[] filteredFilenames, string outTypeParameter, int maxThreads, UfrawOutputHandlers handlers)
 		{
-			using (var ufrawRunner = new ProcessRunner(ufrawBatchExeLocation.Value, outputArguments))
-			{
-				SetHandlersIfNecessary(ufrawRunner, handlers);
-				var runResults = await ufrawRunner.StartAsync();
-				return runResults;
-			}
+			string[] arguments = PrepareArguments(filteredFilenames, outTypeParameter, maxThreads);
+			return StartConversion(arguments, handlers);
 		}
 
-		private static string[] GetOutputArguments(string[] filenames, ImageFormat imageFormat, int? maxThreads)
-		{
-			string outTypeArgument = imageFormatExtensions[imageFormat];
-			var filenamesToConvert = FileFilter.GetFilenamesToConvert(filenames, outTypeArgument);
-			var outputArguments = PrepareArguments(outTypeArgument, filenamesToConvert, maxThreads.Value);
-			return outputArguments;
-		}
-
-		private static string[] PrepareArguments(string outTypeParameter, string[] filenamesToConvert, int maxThreads)
+		private static string[] PrepareArguments(string[] filenamesToConvert, string outTypeParameter, int maxThreads)
 		{
 			string initValue = $"{outTypeArgumentHeader} {outTypeParameter}";
 
@@ -136,9 +136,23 @@ namespace UfrawParallel.Core
 				.ToArray();
 		}
 
+		private static async Task<RunResults> StartConversion(string[] outputArguments, UfrawOutputHandlers handlers)
+		{
+			var messageFormatter = GetMessageFormatter(handlers);
+			using (var ufrawRunner = new ProcessRunner(ufrawBatchExeLocation.Value, outputArguments, false, messageFormatter))
+			{
+				SetHandlersIfNecessary(ufrawRunner, handlers);
+				var runResults = await ufrawRunner.StartAsync();
+				return runResults;
+			}
+		}
+
+		private static IMessageFormatter GetMessageFormatter(UfrawOutputHandlers handlers) =>
+			handlers != null && handlers.AnyHandlerSet() ? MessageFormatter.AppendLine : MessageFormatter.NoMessages;
+
 		private static void SetHandlersIfNecessary(ProcessRunner ufrawRunner, UfrawOutputHandlers handlers)
 		{
-			if (handlers != null)
+			if (handlers != null && handlers.AnyHandlerSet())
 			{
 				ufrawRunner.OutputChanged += handlers.OutputChangedHandler;
 				ufrawRunner.ErrorChanged += handlers.ErrorChangedHandler;

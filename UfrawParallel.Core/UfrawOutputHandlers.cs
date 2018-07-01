@@ -34,5 +34,16 @@ namespace UfrawParallel.Core
 			this.ErrorChangedHandler = errorChangedHandler;
 			this.CombinedOutputChangedHandler = combinedOutputChangedHandler;
 		}
+
+		/// <summary>
+		/// Checks if at least one handler is set in the <see cref="UfrawOutputHandlers"/> instance.
+		/// </summary>
+		/// <returns>True, if at least one handler is not null; otherwise, false.</returns>
+		public bool AnyHandlerSet()
+		{
+			return (OutputChangedHandler != null) ||
+				(ErrorChangedHandler != null) ||
+				(CombinedOutputChangedHandler != null);
+		}
 	}
 }
