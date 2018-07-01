@@ -28,6 +28,7 @@ namespace UfrawParallel
 		public MainForm()
 		{
 			InitializeComponent();
+			cbFormat.SelectedIndex = 0;
 		}
 
 		private async void btnConvertFiles_Click(object sender, EventArgs e)
