@@ -1,11 +1,11 @@
-﻿using AsParallel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AsParallel;
 
 namespace UfrawParallel.Core
 {
@@ -45,6 +45,9 @@ namespace UfrawParallel.Core
 		/// <param name="maxThreads">Max amount of running parallel instances, <see cref="Environment.ProcessorCount"/> will be selected if null.</param>
 		/// <param name="handlers">Handlers of the ufraw-batch console output.</param>
 		/// <returns>Output of all ufraw-batch instances.</returns>
+		/// <exception cref="ArgumentException">Wrong image format or directory does not exist.</exception>
+		/// <exception cref="ArgumentOutOfRangeException">Max threads is negative or zero.</exception>
+		/// <exception cref="InvalidOperationException">Conversion is already in progress.</exception>
 		public string Convert(string directory, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null) =>
 			ConvertAsync(directory, imageFormat, maxThreads, handlers).Result;
 
@@ -56,6 +59,10 @@ namespace UfrawParallel.Core
 		/// <param name="maxThreads">Max amount of running parallel instances, <see cref="Environment.ProcessorCount"/> will be selected if null.</param>
 		/// <param name="handlers">Handlers of the ufraw-batch console output.</param>
 		/// <returns>Output of all ufraw-batch instances.</returns>
+		/// <exception cref="ArgumentException">Wrong image format.</exception>
+		/// <exception cref="ArgumentNullException">Filenames array is null.</exception>
+		/// <exception cref="ArgumentOutOfRangeException">Max threads is negative or zero.</exception>
+		/// <exception cref="InvalidOperationException">Conversion is already in progress.</exception>
 		public string Convert(string[] filenamesToConvert, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null) =>
 			Convert(filenamesToConvert, imageFormat, maxThreads, handlers);
 
@@ -67,8 +74,9 @@ namespace UfrawParallel.Core
 		/// <param name="maxThreads">Max amount of running parallel instances, <see cref="Environment.ProcessorCount"/> will be selected if null.</param>
 		/// <param name="handlers">Handlers of the ufraw-batch console output.</param>
 		/// <returns>Output of all ufraw-batch instances.</returns>
-		/// <exception cref="ArgumentException">Wrong image format.</exception>
+		/// <exception cref="ArgumentException">Wrong image format or directory does not exist.</exception>
 		/// <exception cref="ArgumentOutOfRangeException">Max threads is negative or zero.</exception>
+		/// <exception cref="InvalidOperationException">Conversion is already in progress.</exception>
 		public async Task<string> ConvertAsync(string directory, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null)
 		{
 			CheckCommonPrerequisites(imageFormat, ref maxThreads);
@@ -91,6 +99,10 @@ namespace UfrawParallel.Core
 		/// <param name="maxThreads">Max amount of running parallel instances, <see cref="Environment.ProcessorCount"/> will be selected if null.</param>
 		/// <param name="handlers">Handlers of the ufraw-batch console output.</param>
 		/// <returns>Output of all ufraw-batch instances.</returns>
+		/// <exception cref="ArgumentException">Wrong image format.</exception>
+		/// <exception cref="ArgumentNullException">Filenames array is null.</exception>
+		/// <exception cref="ArgumentOutOfRangeException">Max threads is negative or zero.</exception>
+		/// <exception cref="InvalidOperationException">Conversion is already in progress.</exception>
 		public async Task<string> ConvertAsync(string[] filenamesToConvert, ImageFormat imageFormat, int? maxThreads = null, UfrawOutputHandlers handlers = null)
 		{
 			CheckCommonPrerequisites(imageFormat, ref maxThreads);
